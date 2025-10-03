@@ -1,3 +1,3 @@
-module module2/car_rental
+module github.com/RasagnyaVanga/carrental
 
 go 1.25.1
