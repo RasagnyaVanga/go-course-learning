@@ -5,7 +5,10 @@ import (
 	"fmt"
 )
 
-type Queue[T any] struct {
+type constraintsSet interface {
+	int | float32
+}
+type Queue[T constraintsSet] struct {
 	data []T
 }
 
