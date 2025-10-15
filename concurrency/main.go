@@ -43,7 +43,7 @@ func main() {
 		wg.Wait()
 		close(ch)
 	}()
-	for range userIds {
-		fmt.Println(<-ch)
+	for user := range ch {
+		fmt.Println(user)
 	}
 }
