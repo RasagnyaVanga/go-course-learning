@@ -52,14 +52,14 @@ func getUserId(url string) ([]int, error) {
 // getUserEndpoint fetches JSON data for a single user from the specified URL using the given user ID,
 // unmarshals it into a UserEndPoint struct, and sends the result to the provided channel.
 // It returns an error if fetching the data or unmarshalling the JSON fails.
-func getUserEndpoint(ch chan<- UserEndPoint, url string, id int) error {
+func getUser(ch chan<- User, url string, id int) error {
 
 	bytes, err := fetchJSON(fmt.Sprintf("%s/%d", url, id))
 	if err != nil {
 		return err
 	}
 
-	var user UserEndPoint
+	var user User
 	if err := json.Unmarshal(bytes, &user); err != nil {
 		return err
 	}

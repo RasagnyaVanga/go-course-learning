@@ -3,9 +3,9 @@
      - Fetches JSON data from a URL and unmarshals it into the CollectiveUserData struct.
      - Extracts user IDs from the struct and stores them in a slice of integers.
 
- - Using `getUserEndpoint(ch chan<- UserEndPoint, url string, id int) error`:
+ - Using `getUser(ch chan<- User, url string, id int) error`:
      - For each user ID, concurrently fetches detailed user data from the API.
-     - Unmarshals the data into the UserEndPoint struct and sends it to a channel.
+     - Unmarshals the data into the User struct and sends it to a channel.
 
  - Consumes the user data from the channel in the main routine.
 

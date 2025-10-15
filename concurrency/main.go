@@ -19,7 +19,7 @@ func main() {
 		fmt.Println(id)
 	}
 
-	ch := make(chan UserEndPoint) //channel to store user structs
+	ch := make(chan User)         //channel to store user structs
 	sem := make(chan struct{}, 5) //using semaphore to limit simultaneous requests to 5
 
 	var wg sync.WaitGroup
@@ -34,7 +34,7 @@ func main() {
 				<-sem //releasing slot
 			}()
 
-			if err := getUserEndpoint(ch, url, id); err != nil {
+			if err := getUser(ch, url, id); err != nil {
 				fmt.Println("Error fetching user:", err)
 			}
 		}(id)
@@ -43,7 +43,7 @@ func main() {
 		wg.Wait()
 		close(ch)
 	}()
-	for range userIds {
-		fmt.Println(<-ch)
+	for user := range ch {
+		fmt.Println(user)
 	}
 }
