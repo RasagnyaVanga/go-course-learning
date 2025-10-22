@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "gRPC_helloworld/helloworld";
+
+package helloworld;
+
+service Greeter {
+   // SayHello is the method -- client calls SayHello method with the input message HelloRequest, server responds with HelloResponse
+    rpc SayHello (HelloRequest) returns (HelloResponse); 
+
+    rpc SayHelloRepetetive (HelloRequest) returns (stream HelloResponse);
+
+}
+
+message HelloRequest{
+    string name=1;
+}
+
+message HelloResponse {
+    string message=1;
+}
