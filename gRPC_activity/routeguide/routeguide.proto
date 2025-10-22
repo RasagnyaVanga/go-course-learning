@@ -1,0 +1,56 @@
+syntax = "proto3";
+option go_package="gRPC_activity/routeguide";
+
+package routeguide;
+
+service RouteGuide {
+
+  //below are the given rpc method definitions in tutorial
+
+  rpc GetFeature(Point) returns (Feature) {}  //unary 1 request - 1 response
+
+  rpc ListFeatures(Rectangle) returns (stream Feature) {}  // 1 request - stream of responses.(server streaming)
+
+  rpc RecordRoute(stream Point) returns (RouteSummary) {}  //stream of requests - 1 response. (client to server streaming)
+
+  rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}  //Bidirectional (stream of requests - stream of responses)
+}
+
+message Point {
+  int32 latitude = 1;
+  int32 longitude = 2;
+}
+
+//2 points representing Rectangle
+message Rectangle {
+  Point lo = 1;
+  Point hi = 2;
+}
+
+//Feature contains feature name and location point
+message Feature {
+  string name = 1;
+  Point location = 2;
+}
+
+//RouteNote contains a message being sent at a point
+message RouteNote {
+  Point location = 1;
+  string message = 2;
+}
+
+//RouteSummary - response to a stream of point requests
+
+message RouteSummary {
+  // The number of points received.
+  int32 point_count = 1;
+
+  // The number of known features passed while traversing the route.
+  int32 feature_count = 2;
+
+  // The distance covered in metres.
+  int32 distance = 3;
+
+  // The duration of the traversal in seconds.
+  int32 elapsed_time = 4;
+}
