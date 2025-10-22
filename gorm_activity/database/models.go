@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"gorm.io/gorm"
@@ -7,7 +7,7 @@ import (
 // BlogPost represents a blog post record in the database.
 // It includes fields for the title, author, and content, and embeds gorm.Model
 // which provides ID, CreatedAt, UpdatedAt, and DeletedAt fields.
-type BlogPost struct { //table
+type Post struct { //table
 	gorm.Model
 	Title   string
 	Author  string
@@ -24,9 +24,9 @@ type dbBlog struct { //blog database
 // Any struct implementing this interface must provide methods to create, read,
 // update, delete, and search blog posts.
 type BlogManager interface { //interface
-	CreateBlog(title string, author string, content string) error
-	ReadAllBlogs() ([]BlogPost, error)
-	UpdateTable(id uint, newtitle string, content string) error
-	DeleteBlog(title string) error
-	SearchBlog(author string, title string) ([]BlogPost, error)
+	CreatePost(title string, author string, content string) error
+	ReadAllPosts() ([]Post, error)
+	UpdatePost(id uint, newtitle string, content string) error
+	DeletePost(title string) error
+	SearchPost(author string, title string) ([]Post, error)
 }

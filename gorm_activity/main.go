@@ -3,43 +3,39 @@ package main
 import (
 	"fmt"
 	"log"
+
+	dbpackage "github.com/RasagnyaVanga/gorm_activity/database"
 )
 
 func main() {
-	database, err := NewBlogDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	var db BlogManager
-	db = database
+	db, err := dbpackage.NewBlogDB() //db is the interface returned by constructor through which we can access all the methods of db package
 	if err != nil {
 		log.Fatalf("Could not connect to DB: %v", err)
 	}
-	fmt.Println("Connected to DB:", *database)
+	fmt.Println("Connected to DB")
 
 	//CREATE
-	create_err := db.CreateBlog("Different ways of life", "Klaus", "drama")
-	if create_err != nil {
-		fmt.Println(create_err)
-		return
-	}
+	// create_err := db.CreatePost("Change", "Vishwanath", "biography")
+	// if create_err != nil {
+	// 	fmt.Println(create_err)
+	// 	return
+	// }
 
 	//UPDATE by id
-	// update_err := db.UpdateTable(4, "Colors of life", "drama")
+	// update_err := db.UpdatePost(2, "Colors of life", "drama")
 	// if update_err != nil {
 	// 	fmt.Println(update_err)
 	// 	return
 	// }
 
 	//DELETE by title
-	// if err := db.DeleteBlog("Change"); err != nil {
+	// if err := db.DeletePost("Colors of life"); err != nil {
 	// 	fmt.Println("Error in deleting: ", err)
 	// 	return
 	// }
-	// db.DeleteBlog("Home")
 
 	//SEARCHING
-	// posts, err := db.SearchBlog("Klaus", "Colors of life")
+	// posts, err := db.SearchPost("Klaus", "Different ways of life")
 	// if err != nil {
 	// 	fmt.Println("Error in searching: ", err)
 	// 	return
@@ -47,7 +43,7 @@ func main() {
 	// fmt.Println(posts)
 
 	//READ-ALL
-	res, err := db.ReadAllBlogs()
+	res, err := db.ReadAllPosts()
 	if err != nil {
 		fmt.Println(err)
 		return
