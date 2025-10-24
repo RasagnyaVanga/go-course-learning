@@ -1,0 +1,28 @@
+syntax="proto3";
+option go_package = "grpc_crud/crud";
+package chatapp;
+
+service ChatApp {
+    // rpc SendPrivate(SendPrivateRequest) returns (SendPrivateResponse);
+    // rpc JoinRoom(JoinRoomRequest) returns (stream ChatMessage);
+    rpc Chat(stream ChatMessage) returns (stream ChatMessage);
+}
+
+// message JoinRoomRequest{
+//     string FromUser=1;
+// }
+
+ message ChatMessage {
+    string FromUser =1;
+    string Message =2;    
+}
+
+// message SendPrivateRequest {
+//     string FromUser=1;
+//     string ToUser=2;
+//     string Message=3;
+// }
+
+// message SendPrivateResponse {
+//     bool ok =1;
+// }
