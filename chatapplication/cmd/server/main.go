@@ -11,17 +11,26 @@ import (
 	"google.golang.org/grpc"
 )
 
+// ChatServer implements the gRPC ChatAppServer interface.
+// It handles bidirectional streaming for a chatroom where multiple clients can join and exchange messages.
 type ChatServer struct {
 	pb.UnimplementedChatAppServer
 
-	clientStreamData db.ClientStreamData
+	clientStreamData db.ClientStreamData //interface to access the map of users and their streams.
 }
 
+// NewChatServer creates an instance to the ChatServer struct
 func NewChatServer(clientData db.ClientStreamData) *ChatServer {
 	return &ChatServer{
 		clientStreamData: clientData,
 	}
 }
+
+// Chat implements a bidirectional streaming RPC that enables a real-time chatroom.
+// Multiple clients can join and send messages concurrently.
+// - When a client connects, the first message is used to register their username and add them to the chatroom.
+// - When a client disconnects or an error occurs while receiving, the client is removed from the chatroom and a notification is broadcasted.
+// - All incoming messages from clients are broadcasted to every connected client, including join/leave notifications.
 func (s *ChatServer) Chat(stream pb.ChatApp_ChatServer) error {
 	var username string
 	for {
