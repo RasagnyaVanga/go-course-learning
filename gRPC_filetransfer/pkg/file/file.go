@@ -8,22 +8,30 @@ import (
 	"path/filepath"
 )
 
+type FileManager interface {
+	SetFile(fileName, path string) error
+	Write(chunk []byte) error
+	Close() error
+	Read(chunk []byte) (n int, err error)
+	GetFilePath() string
+}
+
 // File struct represents a file being uplaoded and written to disk.
 // It holds the destination path of the file, buffer, and pointer to the actual output file on disk.
-type File struct {
+type file struct {
 	FilePath   string
 	OutputFile *os.File
 	reader     io.Reader
 }
 
-func NewFile() *File {
-	return &File{}
+func NewFile() FileManager {
+	return &file{}
 }
 
 // SetFile prepares the file for writing.
 // It takes the uploaded file’s name and the storage directory path from config.
 // It ensures the directory exists, then creates the actual file on disk.
-func (f *File) SetFile(fileName, path string) error {
+func (f *file) SetFile(fileName, path string) error {
 	err := os.MkdirAll(path, os.ModePerm) //create directories if they don't exist
 	if err != nil {
 		log.Fatal(err)
@@ -40,7 +48,7 @@ func (f *File) SetFile(fileName, path string) error {
 
 // Write writes a chunk of bytes (from gRPC stream) to the file.
 // It’s called repeatedly as chunks arrive from the client.
-func (f *File) Write(chunk []byte) error {
+func (f *file) Write(chunk []byte) error {
 	if f.OutputFile == nil { //ensure output file is open
 		return nil
 	}
@@ -48,10 +56,14 @@ func (f *File) Write(chunk []byte) error {
 	return err
 }
 
-func (f *File) Close() error {
+func (f *file) Close() error {
 	return f.OutputFile.Close()
 }
 
-func (f *File) Read(chunk []byte) (n int, err error) {
+func (f *file) Read(chunk []byte) (n int, err error) {
 	return f.reader.Read(chunk)
+}
+
+func (f *file) GetFilePath() string {
+	return f.FilePath
 }

@@ -16,11 +16,12 @@ import (
 )
 
 type ClientService struct {
-	cfg *config.Config
+	cfg  *config.Config
+	file file.FileManager
 }
 
-func NewClientService(cfg *config.Config) *ClientService {
-	return &ClientService{cfg: cfg}
+func NewClientService(cfg *config.Config, file file.FileManager) *ClientService {
+	return &ClientService{cfg: cfg, file: file}
 }
 
 // uploadFile is a client-side function responsible for uploading a file to the server via a gRPC client-streaming RPC.
@@ -81,8 +82,6 @@ func (c *ClientService) uploadFile(ctx context.Context, client pb.FileServiceCli
 // until the entire file has been received.
 func (c *ClientService) downloadFile(ctx context.Context, client pb.FileServiceClient, fileName string) error {
 
-	file := file.NewFile()
-
 	stream, err := client.Download(ctx, &pb.DownloadRequest{FileName: fileName}) //RPC call from client
 	if err != nil {
 		return fmt.Errorf("could not start download: %v", err)
@@ -97,21 +96,21 @@ func (c *ClientService) downloadFile(ctx context.Context, client pb.FileServiceC
 			return fmt.Errorf("error receiving chunk: %v", err)
 		}
 
-		if file.FilePath == "" { //creating a new file instancefor downloading file.
-			file.SetFile(fileName, c.cfg.FilesStorage.DownloadsLocation) //filepath
+		if c.file.GetFilePath() == "" { //creating a new file instancefor downloading file.
+			c.file.SetFile(fileName, c.cfg.FilesStorage.DownloadsLocation) //filepath
 
-			defer file.Close()
+			defer c.file.Close()
 
-			fmt.Println("Downloading file to: ", file.FilePath)
+			fmt.Println("Downloading file to: ", c.file.GetFilePath())
 		}
 
-		err = file.Write(resp.Chunk)
+		err = c.file.Write(resp.Chunk)
 		if err != nil {
 			return fmt.Errorf("error writing to file: %v", err)
 		}
 		fmt.Printf("received a chunk with size: %d\n", len(resp.Chunk))
 	}
-	fmt.Printf("Downloaded file: %s at %s", fileName, file.FilePath)
+	fmt.Printf("Downloaded file: %s at %s", fileName, c.file.GetFilePath())
 	return nil
 
 }
@@ -122,7 +121,7 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	clientService := NewClientService(cfg)
+	clientService := NewClientService(cfg, file.NewFile())
 	address := "localhost" + cfg.Server.Port
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

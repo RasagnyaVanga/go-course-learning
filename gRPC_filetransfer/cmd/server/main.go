@@ -19,14 +19,18 @@ import (
 
 type Server struct {
 	pb.UnimplementedFileServiceServer
-	cfg *config.Config
+	cfg  *config.Config
+	file file.FileManager
+}
+
+func NewServer(cfg *config.Config, filemanager file.FileManager) *Server {
+	return &Server{cfg: cfg, file: filemanager}
 }
 
 // Upload is a client-streaming RPC method that receives file chunks sent by the client.
 // All received chunks belong to a single file. The server creates the file in the directory
 // specified in the configuration and writes incoming chunks to it sequentially.
 func (s *Server) Upload(stream pb.FileService_UploadServer) error {
-	file := file.NewFile() //creating a new file instance
 	var totalSize uint32
 
 	for { //receiving chunks from client through stream
@@ -38,18 +42,18 @@ func (s *Server) Upload(stream pb.FileService_UploadServer) error {
 			return err
 		}
 
-		if file.FilePath == "" { //if its path is not set i.e, file is being uploaded for the first time.,
+		if s.file.GetFilePath() == "" { //if its path is not set i.e, file is being uploaded for the first time.,
 			safeFileName := filepath.Base(req.GetFileName()) // only hello-world.txt - getting the base filename from the local path
-			file.SetFile(safeFileName, s.cfg.FilesStorage.UploadsLocation)
+			s.file.SetFile(safeFileName, s.cfg.FilesStorage.UploadsLocation)
 			defer func() {
-				if err := file.OutputFile.Close(); err != nil {
+				if err := s.file.Close(); err != nil {
 					fmt.Println("failed to close file:", err)
 				}
 			}()
 		}
 
 		chunk := req.GetChunk()
-		if err := file.Write(chunk); err != nil { //writing the chunks to file on disk
+		if err := s.file.Write(chunk); err != nil { //writing the chunks to file on disk
 			return err
 		}
 
@@ -57,7 +61,7 @@ func (s *Server) Upload(stream pb.FileService_UploadServer) error {
 		fmt.Printf("received a chunk with size: %d\n", len(chunk))
 	}
 
-	fileName := filepath.Base(file.FilePath)
+	fileName := filepath.Base(s.file.GetFilePath())
 
 	fmt.Printf("Uploaded file: %s, size: %d\n", fileName, totalSize)
 
@@ -150,7 +154,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// Register FileService with the server
-	fileServer := &Server{cfg: cfg}
+	fileServer := NewServer(cfg, file.NewFile()) //instantiating server with cfg and file interface
 	pb.RegisterFileServiceServer(grpcServer, fileServer)
 
 	fmt.Printf("gRPC server listening on %s\n", cfg.Server.Port)
