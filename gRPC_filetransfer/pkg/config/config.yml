@@ -1,0 +1,5 @@
+server:
+  port: ":50051"
+files_storage:
+  uploads_location: "./uploads"
+  downloads_location: "./downloads"

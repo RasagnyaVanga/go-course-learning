@@ -1,0 +1,37 @@
+syntax="proto3";
+package proto;
+option go_package = "gRPC_filetransfer/pkg/proto";
+service  FileService {
+    rpc Upload(stream FileUploadRequest) returns (FileUploadResponse);
+    rpc Download(DownloadRequest) returns (stream DownloadResponse);
+    rpc GetMetaData(MetaDataRequest) returns (MetaDataResponse);
+}
+message FileUploadRequest {
+    string file_name = 1;
+    bytes chunk=2;
+}
+message FileUploadResponse {
+    string file_name =1 ;
+    uint32 size=2;
+}
+
+message DownloadRequest{
+    string file_name=1;
+}
+
+message DownloadResponse{
+    bytes chunk=1;
+}
+
+message MetaDataRequest {
+    string folder_path=1;
+}
+
+message MetaData {
+    string file_name=1;
+    int64 size=2;
+    string modification_time=3;
+}
+message MetaDataResponse {
+    repeated MetaData filesMetaData=1;
+}

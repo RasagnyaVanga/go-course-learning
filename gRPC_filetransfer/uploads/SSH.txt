@@ -1,0 +1,17 @@
+SSH
+
+ls ~/.ssh (to list all keys available)
+
+ssh-keygen -t rsa -b 4096 -C "email"   (generate a public-private key pair)
+
+ssh-agent -s
+
+ssh-add -K ~/.ssh/id_rsa    (add private key)
+
+cat ~/.ssh/id_rsa.pub (display public key)
+
+Now create a new ssh key on github and paste the public key in it and save.
+
+now setup is ready.
+
+setup remote origin and push as usually.
